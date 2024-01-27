@@ -245,3 +245,134 @@ csv_file_path = '/content/pulse/top_user.csv'
 
 # Save the DataFrame to a CSV file without including the index
 top_user.to_csv(csv_file_path, index=False)
+
+# Connecting Mysql
+
+import mysql.connector
+mydb=mysql.connector.connect(host="localhost", username="root", password="lakshmiraj")
+mycursor=mydb.cursor(buffered=True)
+print(mydb)
+
+# Creating Database in MySql, creating table and data insertion:
+
+# Database:
+mycursor.execute("CREATE DATABASE Phonepe")
+
+# Agg.trans table:
+mycursor.execute("CREATE TABLE Phonepe.Agg_trans (State VARCHAR (200), Year int(10), Quarter int(10), Transaction_Type VARCHAR (200), Transaction_count int (10), Transaction_amount int(25))")
+
+#Data insertion in table
+data=pd.read_csv(r"C:\Users\Antony\Desktop\Phonepe project\Agg_transaction.csv")
+
+for index, row in data.iterrows():
+    State=row['State']
+    Year=row['Year']
+    Quarter=row['Quarter']
+    Transaction_Type=row['Transaction_type']
+    Transaction_count=row['Trasaction_count']
+    Transaction_amount=row['Transaction_amount']
+    
+    # print(State,Quarter)
+    sql=("INSERT INTO Phonepe.agg_trans (State, Year, Quarter, Transaction_Type, Transaction_count, Transaction_amount) VALUES(%s,%s,%s,%s,%s,%s)")
+    values=(State, Year, Quarter, Transaction_Type, Transaction_count, Transaction_amount)
+
+    mycursor.execute(sql,values)
+    mydb.commit()
+
+# Agg.User Table
+mycursor.execute("CREATE TABLE Phonepe.Agg_user (State VARCHAR (200), Year INT(10), Quarter INT(10), User_Brand VARCHAR(200), Count INT(100), Percentage INT(100))")
+
+Agg_user_data=pd.read_csv(r"C:\Users\Antony\Desktop\Phonepe project\Agg_user.csv")
+
+for index, row in Agg_user_data.iterrows():
+    State=row['State']
+    Year=row['Year']
+    Quarter=row['Quarter']
+    User_Brand=row['User_Brand']
+    Count=row['Count']
+    Percentage=row['Percentage']
+    
+    # print(State,Quarter)
+    sql=("INSERT INTO Phonepe.agg_user (State, Year, Quarter, User_Brand, Count, Percentage) VALUES(%s,%s,%s,%s,%s,%s)")
+    values=(State, Year, Quarter, User_Brand, Count, Percentage)
+
+    mycursor.execute(sql,values)
+    mydb.commit()
+
+# Map Transaction table
+map_trans_data=pd.read_csv(r"C:\Users\Antony\Desktop\Phonepe project\map_trans.csv")
+
+for index,row in map_trans_data.iterrows():
+    State=row['State']
+    Year=row['Year']
+    Quarter=row['Quarter']
+    District=row['District']
+    Count=row['Count']
+    Amount=row['Amount']
+
+    sql=("INSERT INTO Phonepe.map_trans (State, Year, Quarter, District, Count, Amount) VALUES(%s,%s,%s,%s,%s,%s)")
+    values=(State, Year, Quarter, District, Count, Amount)
+
+    mycursor.execute(sql,values)
+    mydb.commit()
+
+# Map User table
+mycursor.execute("CREATE TABLE Phonepe.map_user(State VARCHAR (200), Year INT, Quarter INT, District VARCHAR(200), Users_Count INT)")
+
+map_user_data=pd.read_csv(r"C:\Users\Antony\Desktop\Phonepe project\map_user.csv")
+
+for index,row in map_user_data.iterrows():
+    
+    State=row['State']
+    Year=row['Year']
+    Quarter=row['Quarter']
+    District=row['District']
+    Users_Count=row['Users_Count']
+
+    sql="INSERT INTO Phonepe.map_user (State, Year, Quarter, District, Users_Count) VALUES (%s,%s,%s,%s,%s)"
+    values=(State, Year, Quarter, District, Users_Count)
+    mycursor.execute(sql, values)
+    mydb.commit()
+
+
+# Top Transaction table
+
+mycursor.execute("CREATE TABLE Phonepe.top_trans(State VARCHAR (200), Year INT, Quarter INT, District VARCHAR(200), Count INT, Amount BIGINT)")
+
+top_trans_data=pd.read_csv(r"C:\Users\Antony\Desktop\Phonepe project\top_trans.csv")
+
+for index,row in top_trans_data.iterrows():
+    
+    State=row['State']
+    Year=row['Year']
+    Quarter=row['Quarter']
+    District=row['District']
+    Count=row['Count']
+    Amount=row['Amount']
+
+    sql="INSERT INTO Phonepe.top_trans (State, Year, Quarter, District, Count, Amount) VALUES (%s,%s,%s,%s,%s,%s)"
+    values=(State, Year, Quarter, District, Count, Amount)
+    mycursor.execute(sql, values)
+    mydb.commit()
+
+# Top user table
+
+mycursor.execute("CREATE TABLE Phonepe.top_user(State VARCHAR (200), Year INT, Quarter INT, District VARCHAR(200), Users_Count INT)")
+
+top_user_data=pd.read_csv(r"C:\Users\Antony\Desktop\Phonepe project\top_user.csv")
+
+for index,row in top_user_data.iterrows():
+    State=row['State']
+    Year=row['Year']
+    Quarter=row['Quarter']
+    District=row['District']
+    Users_Count=row['Users_Count']
+
+    sql="INSERT INTO Phonepe.top_user (State, Year, Quarter, District, Users_Count) VALUES (%s,%s,%s,%s,%s)"
+    values=(State, Year, Quarter, District, Users_Count)
+
+    mycursor.execute(sql,values)
+    mydb.commit()
+
+
+    
