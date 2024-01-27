@@ -1,0 +1,247 @@
+#Data cloning from github file
+!git clone https://github.com/PhonePe/pulse.git
+
+#importing the required libraries.
+import os
+import json
+import pandas as pd
+
+
+
+# file path in github
+path="/content/pulse/data/aggregated/transaction/country/india/state"
+agg_state_list=os.listdir(path)
+
+agg_state_list #to show list of states.
+
+# Creating Dataframe for aggregated_Transaction data:
+
+country={'State':[],'Year':[],'Quarter':[],'Transaction_type':[],'Trasaction_count':[],'Transaction_amount':[]}
+
+for i in agg_state_list:
+    p_i = os.path.join(path, i)
+    Agg_year_list = os.listdir(p_i)
+    # print(Agg_year_list)
+    for j in Agg_year_list:
+        p_j = os.path.join(p_i, j)
+        Agg_quarter_list = os.listdir(p_j)
+        # print(Agg_quarter_list)
+
+        for k in Agg_quarter_list:
+            p_k = os.path.join(p_j, k)
+            # print(p_k)
+            Data=open(p_k,'r')
+            D=json.load(Data)
+            for z in D['data']['transactionData']:
+              Name=z['name']
+              count=z['paymentInstruments'][0]['count']
+              amount=z['paymentInstruments'][0]['amount']
+              country['Transaction_type'].append(Name)
+              country['Transaction_amount'].append(amount)
+              country['Trasaction_count'].append(count)
+              country['State'].append(i)
+              country['Year'].append(j)
+              country['Quarter'].append(int(k.strip('.json')))
+              Agg_trans=pd.DataFrame(country)
+
+Agg_trans
+csv_file_path = '/content/pulse/Agg_trans.csv'
+
+# Save the DataFrame to a CSV file without including the index
+Agg_trans.to_csv(csv_file_path, index=False)
+
+# Creating Dataframe for aggregated_users data:
+
+user={'State':[],'Year':[], 'Quarter':[],'User_Brand':[],'Count':[],'Percentage':[]}
+
+path="/content/pulse/data/aggregated/user/country/india/state"
+
+agg_user_list=os.listdir(path)
+# agg_user_list
+
+for i in agg_user_list:
+  p_i=os.path.join(path,i)
+  agg_year_list=os.listdir(p_i)
+
+  for j in agg_year_list:
+    p_j=os.path.join(p_i,j)
+    agg_quarter_list=os.listdir(p_j)
+
+    for k in agg_quarter_list:
+      p_k=os.path.join(p_j,k)
+
+
+      Data=open(p_k,'r')
+      D=json.load(Data)
+
+      if 'data' in D and 'usersByDevice' in D['data'] and D['data']['usersByDevice'] is not None:
+                    for z in D['data']['usersByDevice']:
+                        User_Brand=z['brand']
+                        Count=z['count']
+                        Percentage=z['percentage']
+                        user['State'].append(i)
+                        user['Year'].append(j)
+                        user['Quarter'].append(int(k.strip('.json')))
+                        user['User_Brand'].append(User_Brand)
+                        user['Count'].append(Count)
+                        user['Percentage'].append(Percentage*100)
+                        Agg_user=pd.DataFrame(user)
+
+
+csv_file_path = '/content/pulse/agg_trans.csv'
+
+# Save the DataFrame to a CSV file without including the index
+Agg_user.to_csv(csv_file_path, index=False)
+
+# Creating Dataframe for Map_Transaction data:
+
+map={'State':[],'Year':[], 'Quarter':[],'District':[],'Count':[],'Amount':[]}
+
+path="/content/pulse/data/map/transaction/hover/country/india/state"
+
+
+
+Agg_state_list=os.listdir(path)
+
+for i in agg_state_list:
+  p_i=os.path.join(path,i)
+  agg_year_list=os.listdir(p_i)
+
+  for j in agg_year_list:
+    p_j=os.path.join(p_i,j)
+    agg_quarter_list=os.listdir(p_j)
+
+    for k in agg_quarter_list:
+      p_k=os.path.join(p_j,k)
+      # print(p_k)
+      Data=open(p_k,'r')
+
+      D=json.load(Data)
+      for z in D['data']['hoverDataList']:
+        District=z['name']
+        count=z['metric'][0]['count']
+        amount=z['metric'][0]['amount']
+        map['State'].append(i)
+        map['Year'].append(j)
+        map['Quarter'].append(int(k.strip('.json')))
+        map['District'].append(str(District.removesuffix('district')))
+        map['Count'].append(count)
+        map['Amount'].append(amount)
+
+Map_trans=pd.DataFrame(map)
+
+Map_trans
+
+csv_file_path = '/content/pulse/map_trans.csv'
+
+# Save the DataFrame to a CSV file without including the index
+Map_trans.to_csv(csv_file_path, index=False)
+
+# Creating Dataframe for Map_users data:
+
+map_1={'State':[],'Year':[], 'Quarter':[],'District':[],'Users_Count':[]}
+
+path="/content/pulse/data/map/user/hover/country/india/state"
+
+map_user=os.listdir(path)
+
+for i in map_user:
+  p_i=os.path.join(path,i)
+  map_state=os.listdir(p_i)
+  for j in map_state:
+    p_j=os.path.join(p_i,j)
+    map_quarter=os.listdir(p_j)
+    for k in map_quarter:
+      p_k=os.path.join(p_j,k)
+      with open(p_k,'r') as data:
+        D=json.load(data)
+
+        # for district, values in D.get('data',{}).get('hoverData',{}).items():
+        for z in D['data']['hoverData']:
+          values=D['data']['hoverData'][z]
+
+          reg_users=values["registeredUsers"]
+          map_1['State'].append(i)
+          map_1['Year'].append(j)
+          map_1['Quarter'].append(int(k.strip('.json')))
+          map_1['District'].append(str(z.removesuffix('district')))
+          map_1['Users_Count'].append(reg_users)
+Map_user=pd.DataFrame(map_1)
+Map_user
+
+csv_file_path = '/content/pulse/map_user.csv'
+
+# Save the DataFrame to a CSV file without including the index
+Map_user.to_csv(csv_file_path, index=False)
+
+# Creating Dataframe for top_transaction data:
+
+path="/content/pulse/data/top/transaction/country/india/state"
+
+top={'State':[],'Year':[], 'Quarter':[],'District':[],'Count':[],'Amount':[]}
+
+top_trans=os.listdir(path)
+
+for i in top_trans:
+  p_i=os.path.join(path,i)
+  top_state=os.listdir(p_i)
+  for j in top_state:
+    p_j=os.path.join(p_i,j)
+    top_quarter=os.listdir(p_j)
+    for k in top_quarter:
+      p_k=os.path.join(p_j,k)
+      data=open(p_k,'r')
+      D=json.load(data)
+      for z in D['data']['districts']:
+        name=z['entityName']
+        count=z['metric']['count']
+        amount=z['metric']['amount']
+        top['District'].append(name)
+        top['State'].append(i)
+        top['Year'].append(j)
+        top['Quarter'].append(int(k.strip('.json')))
+        top['Amount'].append(amount)
+        top['Count'].append(count)
+
+top_trans=pd.DataFrame(top)
+top_trans
+
+csv_file_path = '/content/pulse/top_trans.csv'
+
+# Save the DataFrame to a CSV file without including the index
+top_trans.to_csv(csv_file_path, index=False)
+
+# Creating Dataframe for top_users data:
+
+path="/content/pulse/data/top/user/country/india/state"
+
+top_user={'State':[],'Year':[], 'Quarter':[],'District':[],'Users_Count':[]}
+
+top_users=os.listdir(path)
+
+for i in top_users:
+  p_i=os.path.join(path,i)
+  top_state=os.listdir(p_i)
+  for j in top_state:
+    p_j=os.path.join(p_i,j)
+    top_quarter=os.listdir(p_j)
+    for k in top_quarter:
+      p_k=os.path.join(p_j,k)
+      data=open(p_k,'r')
+      D=json.load(data)
+      for z in D['data']['districts']:
+        name=z['name']
+        users=z['registeredUsers']
+        top_user['District'].append(name)
+        top_user['State'].append(i)
+        top_user['Year'].append(j)
+        top_user['Quarter'].append(int(k.strip('.json')))
+        top_user['Users_Count'].append(users)
+
+top_user=pd.DataFrame(top_user)
+top_user
+
+csv_file_path = '/content/pulse/top_user.csv'
+
+# Save the DataFrame to a CSV file without including the index
+top_user.to_csv(csv_file_path, index=False)
